@@ -1,0 +1,124 @@
+@font-face {
+    font-family: 'FavoritRegular';
+    src: url('fonts/ABCFavorit-Regular-Trial.woff2');
+
+}
+
+body {
+    font-family: "Times New Roman ";
+
+    color: black;
+    position: fixed;
+    min-width: 100%;
+    min-height: 100%;
+    margin: 0;
+
+}
+
+.gross {
+    font-size: 24rem;
+    z-index: 1;
+    line-height: 1;
+    position: fixed;
+
+    color: rgb(50, 50, 200, 0.1);
+}
+
+.container_container {
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+
+
+    height: 100vh;
+
+}
+
+.container_texts {
+    position: relative;
+
+    /*
+    position: fixed;
+    min-width: 30%;
+    min-height: 100%;
+*/
+
+}
+
+#container_left {
+    background-color: white;
+
+
+}
+
+#container_middle {
+    background-color: white;
+    ;
+}
+
+#container_right {
+    background-color: white;
+
+}
+
+.wrap {
+    font-size: 4pt;
+    max-width: 8vw;
+    max-height: 20vh;
+    overflow: hidden;
+    text-align: justify;
+
+}
+
+#wrap_lena {
+    position: absolute;
+    right: 10%;
+    top: 10%;
+}
+
+#wrap_jasper {
+    position: absolute;
+    right: 40%;
+    top: 30%;
+    color: pink;
+}
+
+#wrap_luci {
+    position: absolute;
+    left: 11%;
+    top: 28%;
+}
+
+#wrap_luca {
+    position: absolute;
+    right: 45%;
+    top: 64%;
+}
+
+#wrap_amelie {
+    position: absolute;
+    right: 23%;
+    top: 72%;
+}
+
+#wrap_clara {
+    position: absolute;
+    right: 57%;
+    top: 3%;
+}
+
+.wrap:hover {
+    cursor: pointer;
+    color: rgb(180, 250, 180) !important;
+}
+
+.focus {
+    font-size: 14pt;
+    max-width: 100%;
+    max-height: 100%;
+    right: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin: 5%;
+    overflow-y: auto;
+}
