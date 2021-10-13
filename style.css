@@ -18,26 +18,19 @@ body {
     line-height: 1;
     position: fixed;
     user-select: none;
-    color: rgb(50, 50, 200, 0.1);
+    color: rgb(0, 0, 82);
+    opacity: 1.0;
 }
 
 .wrap {
-    font-size: 4pt;
-    max-width: 12vw;
-    max-height: 50vh;
-    overflow: hidden;
+    font-size:5pt;
+    overflow-y: auto;
     text-align: justify;
     position: absolute;
     opacity: 0;
+    max-height: 98vh
 }
 
-#wrap_amelie {
-    max-width: 16vw;
-}
-
-#wrap_clara {
-    max-width: 13vw;
-}
 
 /* .focus {
     font-size: 14pt;
