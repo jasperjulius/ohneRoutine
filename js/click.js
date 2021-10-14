@@ -2,12 +2,13 @@ var baseFontSize = 5;
 
 var generalAttributes = {
   "font-size":baseFontSize,
-  "bias":0
+  "bias":0,
+  "max-width-focus": "34vw"
 }
 
 var initialAttributes = {
   wrap_lena: {
-    left: "80%",
+    left: "70%",
     top: "10%",
     bias: "280",
     "scale":1,
@@ -31,19 +32,20 @@ var initialAttributes = {
   },
 
   wrap_luca: {
-    left: "41%",
-    top: "64%",
+    left: "38%",
+    top: "61%",
     bias: "150",
     "scale":1,
     "max-width": "9vw"
   },
 
   wrap_amelie: {
-    left: "71%",
-    top: "42%",
-    bias: 200,
+    left: "75%",
+    top: "45%",
+    bias: 350,
     "scale":1,
     "max-width": "16vw",
+    "max-width-focus": "45vw",
   },
 
   wrap_clara: {
@@ -53,6 +55,17 @@ var initialAttributes = {
     "scale":1,
     "max-width": "13vw"
   }
+}
+
+function ID(elem) {
+  return $(elem).attr("id")
+}
+
+
+var getAttributeAsNumber = function(id, attr) {
+  var attribute = getAttribute(id, attr);
+  var attribute = attribute.replace(/[a-zA-Z]/, "")
+  return parseFloat(attribute)
 }
 
 var getAttribute = function(id, attr) {
@@ -78,7 +91,7 @@ var hasClass = function (elem, someClass) {
 }
 
 var setTextScale = function (elem, scale) {
-  var id = $(elem).attr('id')
+  let id = ID(elem)
   setAttribute(id, "scale", scale)
   return move("#" + id)
     .ease("out")
@@ -88,38 +101,49 @@ var setTextScale = function (elem, scale) {
 
 var applyInitialStates = function (duration) {
   $(".wrap").each(function () {
-      applyInitialState(this, duration)
+      applyInitialState(this, duration).end()
   })
 }
 
 var applyInitialState = function(elem, duration) {
-  var id = $(elem).attr('id')
+  let id = ID(elem)
   attributes = initialAttributes[id]
+  moveFunc = move("#" + id)
+    .duration(duration)
+    .x(0)
+    .set("margin-left", 0)
   for (var attribute in attributes) {
-    move("#" + id)
+    moveFunc = moveFunc
       .set(attribute, attributes[attribute])
-      .duration(duration)
-      .set("margin-left", 0)
-      .end()
   }
+  return moveFunc
 }
 
+var calcCenterOfObject = function(elem){
+  var pos = $(elem).position()
+  var height = $(elem).height()
+  var width = $(elem).width()
+  var result = {x:pos.left + width/2,
+          y:pos.top + height/2}
+  // console.log("pos: "+pos)
+  // console.log("height, width:"+height+", "+width)
+  // console.log("center of element: "+result)
+  return result
+}
 
 $(document).ready(function () {
 
-  console.log(getAttribute("wrap_luca", "ljkd"))
   // initially move each text to its position
   applyInitialStates("0.0s")
   $(".wrap").each(function () {
-    var id = $(this).attr('id')
-    move("#" + id)
+    move("#" + ID(this))
     .set("opacity", "1")
     .ease("out")
     .delay("0.4s")
     .duration("1.2s")
     .end()
 
-    move("#" + id).delay("0s").end()
+    move("#" + ID(this)).delay("0s").end()
   })
 
   // fade-out schriftzug "ohne routine"
@@ -132,7 +156,7 @@ $(document).ready(function () {
 
   // reaction of small texts on hover
   $(".wrap").hover(function () {
-    var id = $(this).attr('id');
+    let id = ID(this)
     if (!hasClass(this, "focus")) {
       move("#" + id)
         .set("font-size", getAttribute(id, "scale")*(baseFontSize+1)+"pt")
@@ -140,43 +164,85 @@ $(document).ready(function () {
         .end();
     }
   }, function () {
-    var id = $(this).attr('id');
+    let id = ID(this);
     move("#" + id)
       .set("font-size", getAttribute(id, "scale") * baseFontSize + "pt")
       .duration("0.25")
       .end();
   })
 
+  // click on any text - 
   $(".wrap").click(function () {
+    let idClicked = ID(this);
+
+    // todo: transform to using moveObject instead of triggering every animation straight away - might solve some problems
+    let moveObjects = {
+      wrap_lena: move('#'+"wrap_lena"),
+      wrap_jasper: move('#'+"wrap_jasper"),
+      wrap_luci: move('#'+"wrap_luci"),
+      wrap_luca: move('#'+"wrap_luca"),
+      wrap_amelie: move('#'+"wrap_amelie"),
+      wrap_clara: move('#'+"wrap_clara")
+    }
+    // all texts change scale to small
+    $(".wrap").each(function () {
+      $(this).removeClass("focus")
+      setTextScale(this, 1).end()
+      applyInitialState(this, "0.15s").end()
+    })
+
     // clicked text toggles scale
-    var idClicked = $(this).attr('id');
     if (!hasClass(this, "focus")) {
       $(this).addClass("focus")
       move("#" + idClicked)
+        .x(0)
         .set("font-size", getAttribute(idClicked, "scale") * baseFontSize + "pt")
         .duration("0.15")
         .end();
-      // todo: move to position at top
       setTextScale(this, 3.2)
       .set("top", "2%")
       .sub("margin-left", getAttribute(idClicked, "bias"))
-      .set("max-width", "34vw")
+      .set("max-width", getAttribute(idClicked, "max-width-focus"))
       .end()
 
     } else {
       $(this).removeClass("focus")
       setTextScale(this, 1.0).end()
-      applyInitialStates("0.15s");
+      applyInitialState(this, "0.15s");
+      return
     }
 
-    // all other texts change scale to small
+    // all other texts are moved to the side
+    const centerBeforeClick = calcCenterOfObject(this)
+    const windowWidth = jQuery(window).width()
+    const leftBorderClicked = $(this).position().left - getAttribute(idClicked, "bias")
+    const widthClicked = getAttributeAsNumber(idClicked, "max-width-focus") / 100 * windowWidth
+    const rightBorderClicked = leftBorderClicked + widthClicked
+    // console.log("viewport: " + jQuery(window).width()+", leftBorderClicked: "+leftBorderClicked+", rightBorderClicked: "+rightBorderClicked+", widthClicked: "+widthClicked)
     $(".wrap").each(function () {
-      var idOther = $(this).attr('id');
-      if (idOther == idClicked)
+      if (hasClass(this, "focus"))
         return;
-      setTextScale(this, 1).end()
-      applyInitialState(this, "0.15s")
-      $(this).removeClass("focus")
+      thisMove = applyInitialState(this, "0.1s").end()
+      const center = calcCenterOfObject(this)
+      if (center.x < centerBeforeClick.x){
+        let newPositionX = center.x/centerBeforeClick.x*leftBorderClicked*0.9
+        let change = newPositionX - center.x
+        move('#'+ID(this))
+          .ease("out")
+          .x(change-20)
+          .duration("0.15s")
+           .end()
+      } else {
+        const w = windowWidth
+        // todo: calculate 
+        let newPositionX = w - (w - center.x)/(w - centerBeforeClick.x)*(w - rightBorderClicked) * 0.9
+        let change = newPositionX - center.x
+        move('#' + ID(this))
+          .ease("out")
+          .x(change + 20)
+          .duration("0.15s")
+          .end()
+      }
 
     })
   })
@@ -186,9 +252,12 @@ $(document).ready(function () {
     $(".wrap").each(function () {
       setTextScale(this, 1).end()
       $(this).removeClass("focus")
+      applyInitialState(this, "0.15s").end()
     })
-    applyInitialStates("0.15s");
+    
   })
+
+  // todo: when you mark text, it recognizes it as a click
 });
 
 
